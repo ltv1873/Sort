@@ -1,0 +1,100 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+</head>
+<style>
+  div.list-complete-item {
+    transition: all 0.5s;
+    display: inline-flex;
+  }
+
+  .list-output {
+    display: inline-block;
+  }
+
+  .list-complete-enter,
+  .list-complete-leave-to {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  .list-complete-leave-active {
+    transition: all 0.1s;
+    position: absolute;
+  }
+</style>
+
+<body>
+  <div id="app" class="p-5">
+    <div class="flex gap-10">
+      <textarea class="border-2 px-4 py-2" v-model="inputArrStr" cols="50" rows="3"></textarea>
+      <div>
+        <!-- <div>
+          Block size:
+          <input type="number" class="border-2 px-4 py-2" v-model="block_size" />
+        </div> -->
+
+        <div>
+          Split size:
+          <input class="border-2 px-4 py-2" type="number" v-model="split_size" />
+        </div>
+
+        <div>
+          <p>Input array:
+          <div class="flex flex-wrap">
+            <div class="w-10 h-10 flex justify-center items-center border-2 " v-for="(e, index) in inputArr" v-bind:style="{background: getBackground(index)}">
+              {{e}}
+            </div>
+          </div>
+          </p>
+          <button class="border-2 bg-green-300 px-4 py-2 text-white" v-on:click="split">Split to chunk</button>
+          <button class="border-2 bg-green-400 px-4 py-2 text-white" v-on:click="sortSplitArr"
+            :disabled="blockArr.length==0">
+            Sort chunk
+          </button>
+          <button class="border-2 bg-green-500 px-4 py-2 text-white" v-on:click="run" :disabled="!sorted">Run
+            step</button>
+          <button class="border-2 bg-green-500 px-4 py-2 text-white" v-on:click="runAuto" :disabled="!sorted">Run Auto
+            </button>
+            <button class="border-2 bg-green-500 px-4 py-2 text-white" v-on:click="runAuto" :disabled="!interval">Stop
+            </button>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div v-for="(a,index) in blockArr" class="mt-5" tag="div" v-key="index">
+        Split {{index}}:
+        <transition-group class="list-complete" class="flex flex-wrap">
+          <div v-bind:style="{background:colorsArr[index]}"
+            class="w-10 h-10  justify-center items-center border-2 list-complete-item" v-bind:key="e"
+            v-for="(e, index1) in a" v-bind:id="'split-block-' + e">
+            {{e}}
+          </div>
+        </transition-group>
+      </div>
+    </div>
+    <div v-show="splitM!=-1">
+      Move {{splitMV}} from {{'Split '+splitM}} to OutputArr
+    </div>
+    <div>OutputArr:
+      <div id="output-container" name="list-complete" class="list-output">
+        <div v-bind:style="{background:outputColorsArr[index]}" v-bind:id="'output-block-' + e"
+          class="w-10 h-10 justify-center items-center border-2 list-complete-item" v-bind:key="e"
+          v-for="(e,index) in outputArr">
+          {{e}}
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  <script src="main.js"></script>
+</body>
+
+</html>
