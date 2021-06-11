@@ -1,12 +1,11 @@
 var app = new Vue({
   el: "#app",
   data: {
-    selectedNumberLength: 0,
-    selectedRowLength:0,
     inputArrStr:
       "17 37 3 7 41 62 15 38 23 89 77 5 19 16 18 42 24 8 55 65 56 88 1 10 60 36 12 48 26 80 99 54 6 49 74 94 50 86 32 2 90 30 63 75 44 57 34 76 61 25 13 51 81 100 47 82 35 69 4 72 46 33 27 79 68 52 53 91 59 70 64 11 31 73 71 22 98 92 39 96 9 40 58 97 43 78 83 95 45 66 28 84 21 20 14 85 87 93 29 67",
     run_size: 8,
     blockArr: [],
+    inputColor: ['red', 'yellow', 'green', 'greenyellow', 'pink', 'orange', 'blanchedalmond', 'cadetblue', 'chartreuse'],
     colorsArr: [],
     block_size: 1,
     split_size: 1,
@@ -16,6 +15,7 @@ var app = new Vue({
     splitMV: -1,
     running: false,
     sorted: 0,
+    interval: undefined,
   },
   computed: {
     inputArr() {
@@ -30,31 +30,25 @@ var app = new Vue({
       return '';
     },
     split() {
-      // this.sorted = 0;
-      // this.outputArr = [];
-      // this.colorsArr = [];
-      // this.blockArr = [];
-      let splitIndex = this.selectedRowLength;
+      this.sorted = 0;
+      this.outputArr = [];
+      this.colorsArr = [];
+      this.blockArr = [];
+      this.block_size = Math.ceil(this.inputArr.length / this.split_size);
       for (let i = 0; i < this.block_size; i++) {
         this.blockArr.push([]);
-        this.colorsArr.push(
-          "#" + Math.floor(Math.random() * 16777215).toString(16)
-        );
-        this.selectedRowLength++
+        this.colorsArr.push(this.inputColor[i]);
       }
+      let splitIndex = 0;
       let splitCount = 0;
-      let newRowCount = 0;
-      for (let i = this.selectedNumberLength; i < this.inputArr.length; i++) {
-        console.log(splitIndex);
+      for (let i = 0; i < this.inputArr.length; i++) {
         this.blockArr[splitIndex].push(this.inputArr[i]);
         splitCount++;
         if (splitCount == this.split_size) {
           splitCount = 0;
           splitIndex++;
         }
-        this.selectedNumberLength++;
-        newRowCount++
-        if (newRowCount == this.block_size) {
+        if (splitIndex == this.block_size) {
           break;
           // splitIndex = 0;
         }
@@ -75,7 +69,7 @@ var app = new Vue({
       // }
     },
     run() {
-      if (this.running) {
+      if (this.running || this.outputArr.length == this.inputArr.length) {
         return;
       }
       this.running = true;
@@ -91,21 +85,46 @@ var app = new Vue({
           }
       }
       if (check) {
-
-        let offset = $('#output-container').offset();
-        let ele = $(`#split-block-${this.blockArr[this.splitM][0]}`);
-        ele.css('position', 'absolute');
-        ele.animate({
-          top: offset.top,
-          left: offset.left + $('#output-container').width()
-        }, 200);
+        const comparing = [];
+        this.blockArr.forEach((e, index) => {
+          let a = $(`#split-block-${this.blockArr[index][0]}`);
+          a.css('border', '5px solid red');
+          comparing.push(a);
+        });
         setTimeout(() => {
-          this.blockArr[this.splitM].splice(0, 1);
-          this.outputArr.push(this.splitMV);
-          this.outputColorsArr.push(this.colorsArr[this.splitM]);
-          this.running = false;
-        }, 660);
+          comparing.forEach(e => {
+            e.css('border', '');
+          });
+          let offset = $('#output-container').offset();
+          let ele = $(`#split-block-${this.blockArr[this.splitM][0]}`);
+          ele.css('border', '5px solid green');
+          setTimeout(() => {
+            ele.css('position', 'absolute');
+            ele.animate({
+              top: offset.top,
+              left: offset.left + $('#output-container').width()
+            }, 100);
+            setTimeout(() => {
+              this.blockArr[this.splitM].splice(0, 1);
+              this.outputArr.push(this.splitMV);
+              this.outputColorsArr.push(this.colorsArr[this.splitM]);
+              this.running = false;
+            }, 430);
+          }, 300);
+        }, 300);
       }
     },
+    runAuto() {
+      if (this.running || this.outputArr.length == this.inputArr.length) {
+        if (this.interval) {
+          clearInterval(interval);
+          interval = undefined;
+        }
+        return;
+      }
+      this.interval = setInterval(() => {
+        this.run();
+      }, 1800);
+    }
   },
 });
